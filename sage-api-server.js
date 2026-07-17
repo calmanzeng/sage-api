@@ -20,7 +20,7 @@ const url = require('url');
 // ─── 引擎加载 ────────────────────────────────────────────────
 
 // 奇门引擎 (本目录)
-const qimen = require('./qimen');
+const qimen = require('./qimen/qimen');
 
 // 紫微引擎 — 优先从项目依赖加载，其次从 ZIWEI_DIR 环境变量
 let iztro = null;
@@ -31,7 +31,11 @@ try {
     const ZIWEI_DIR = process.env.ZIWEI_DIR || require('path').join(require('os').homedir(), 'ziwei-doushu');
     iztro = require(ZIWEI_DIR + '/node_modules/iztro');
   } catch (e2) {
-    console.warn('[sage-api] ⚠️ 紫微斗数引擎未加载。如需使用请安装 iztro 或设置 ZIWEI_DIR 环境变量');
+    try {
+      iztro = require(require('path').join(__dirname, 'node_modules', 'iztro'));
+    } catch (e3) {
+      console.warn('[sage-api] ⚠️ 紫微斗数引擎未加载。请安装 iztro: npm install iztro');
+    }
   }
 }
 
@@ -144,7 +148,7 @@ async function handleZiwei(body) {
 
 // ─── 服务器 ──────────────────────────────────────────────────
 
-const PORT = parseInt(process.env.SAGE_API_PORT || process.argv[2] || '3456', 10);
+const PORT = parseInt(process.env.PORT || process.env.SAGE_API_PORT || process.argv[2] || '3456', 10);
 const HOST = process.env.SAGE_API_HOST || '0.0.0.0';
 
 const server = http.createServer(async (req, res) => {
