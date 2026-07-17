@@ -22,13 +22,21 @@ const url = require('url');
 // 奇门引擎 (本目录)
 const qimen = require('./qimen/qimen');
 
-// 紫微引擎 (izi墙-doushu 项目中的 iztro)
-const ZIWEI_DIR = process.env.ZIWEI_DIR || require('path').join(require('os').homedir(), 'ziwei-doushu');
+// 紫微引擎 — 优先从项目依赖加载，其次从 ZIWEI_DIR 环境变量
 let iztro = null;
 try {
-  iztro = require(ZIWEI_DIR + '/node_modules/iztro');
-} catch (e) {
-  console.warn('[sage-api] ⚠️ 紫微斗数引擎未加载。如需使用请设置 ZIWEI_DIR 环境变量指向 ziwei-doushu 项目目录');
+  iztro = require('iztro');
+} catch (e1) {
+  try {
+    const ZIWEI_DIR = process.env.ZIWEI_DIR || require('path').join(require('os').homedir(), 'ziwei-doushu');
+    iztro = require(ZIWEI_DIR + '/node_modules/iztro');
+  } catch (e2) {
+    try {
+      iztro = require(require('path').join(__dirname, 'node_modules', 'iztro'));
+    } catch (e3) {
+      console.warn('[sage-api] ⚠️ 紫微斗数引擎未加载。请安装 iztro: npm install iztro');
+    }
+  }
 }
 
 // ─── 工具函数 ────────────────────────────────────────────────
@@ -140,7 +148,7 @@ async function handleZiwei(body) {
 
 // ─── 服务器 ──────────────────────────────────────────────────
 
-const PORT = parseInt(process.env.SAGE_API_PORT || process.argv[2] || '3456', 10);
+const PORT = parseInt(process.env.PORT || process.env.SAGE_API_PORT || process.argv[2] || '3456', 10);
 const HOST = process.env.SAGE_API_HOST || '0.0.0.0';
 
 const server = http.createServer(async (req, res) => {
@@ -176,7 +184,7 @@ const server = http.createServer(async (req, res) => {
       return json(res, result.error ? 400 : 200, result);
     }
 
-    if (req.method === 'GET' && (path === '/' || path === '')) {
+        if (req.method === 'GET' && (path === '/' || path === '')) {
       res.writeHead(200, {
         'Content-Type': 'text/html; charset=utf-8',
         'Access-Control-Allow-Origin': '*',
@@ -185,6 +193,10 @@ const server = http.createServer(async (req, res) => {
     }
 
     return json(res, 404, {
+      error: true,
+      message: '未知路径: ' + req.method + ' ' + path,
+      available: ['GET /api/health', 'POST /api/qimen', 'POST /api/ziwei'],
+    });return json(res, 404, {
       error: true,
       message: '未知路径: ' + req.method + ' ' + path,
       available: ['GET /api/health', 'POST /api/qimen', 'POST /api/ziwei'],
