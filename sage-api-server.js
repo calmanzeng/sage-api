@@ -22,13 +22,17 @@ const url = require('url');
 // 奇门引擎 (本目录)
 const qimen = require('./qimen');
 
-// 紫微引擎 (izi墙-doushu 项目中的 iztro)
-const ZIWEI_DIR = process.env.ZIWEI_DIR || require('path').join(require('os').homedir(), 'ziwei-doushu');
+// 紫微引擎 — 优先从项目依赖加载，其次从 ZIWEI_DIR 环境变量
 let iztro = null;
 try {
-  iztro = require(ZIWEI_DIR + '/node_modules/iztro');
-} catch (e) {
-  console.warn('[sage-api] ⚠️ 紫微斗数引擎未加载。如需使用请设置 ZIWEI_DIR 环境变量指向 ziwei-doushu 项目目录');
+  iztro = require('iztro');
+} catch (e1) {
+  try {
+    const ZIWEI_DIR = process.env.ZIWEI_DIR || require('path').join(require('os').homedir(), 'ziwei-doushu');
+    iztro = require(ZIWEI_DIR + '/node_modules/iztro');
+  } catch (e2) {
+    console.warn('[sage-api] ⚠️ 紫微斗数引擎未加载。如需使用请安装 iztro 或设置 ZIWEI_DIR 环境变量');
+  }
 }
 
 // ─── 工具函数 ────────────────────────────────────────────────
