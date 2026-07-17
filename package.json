@@ -1,0 +1,14 @@
+{
+  "name": "sage-api",
+  "version": "1.0.0",
+  "description": "🧭 Sage API — 奇门遁甲 + 紫微斗数 HTTP 排盘服务",
+  "main": "sage-api-server.js",
+  "scripts": {
+    "start": "node sage-api-server.js",
+    "dev": "node sage-api-server.js --port 3456"
+  },
+  "dependencies": {
+    "lunar-javascript": "^1.6.1",
+    "iztro": "^2.5.8"
+  }
+}
