@@ -1,9 +1,0 @@
-{
-  "build": {
-    "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "startCommand": "node sage-api-server.js",
-    "healthcheckPath": "/api/health"
-  }
-}
